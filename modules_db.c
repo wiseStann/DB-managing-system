@@ -45,7 +45,14 @@ int get_menu_item() {
 }
 
 void handle_item(int number) {
+    int code = 1;
     switch (number) {
+        case 1:
+            printf();
+            printf();
+            scanf();
+            break;
+        default:
 
     }
 }

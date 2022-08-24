@@ -1,5 +1,8 @@
 #define ENTITY
 
+#define MODULES_TB_ID 1
+#define LEVELS_TB_ID 2
+#define STATUSSES_TB_ID 3
 
 typedef struct Modules {
     int id;
@@ -24,14 +27,24 @@ typedef struct Statusses {
 } statusses_tb;
 
 
+typedef struct Entity {
+    union {
+        modules_tb   *module;
+        levels_tb    *level;
+        statusses_tb *status;
+    };
+    int curr_table;
+} tb_entity;
+
+
 //////////////////////////////////////////////////////
 
-ENTITY *select(FILE *db, int id);
+tb_entity *select(FILE *db, int id);
 
 int delete(FILE *db, int id);
 
-int insert(FILE *db, ENTITY *entity);
+int insert(FILE *db, tb_entity *entity);
 
-int update(FILE *db, int id, ENTITY *entity);
+int update(FILE *db, int id, tb_entity *entity);
 
 //////////////////////////////////////////////////////
