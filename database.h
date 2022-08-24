@@ -1,3 +1,4 @@
+#include <stdio.h>
 #define ENTITY
 
 
@@ -26,12 +27,12 @@ typedef struct Statusses {
 
 //////////////////////////////////////////////////////
 
-ENTITY *select(FILE *db, int id);
-
-int delete(FILE *db, int id);
-
-int insert(FILE *db, ENTITY *entity);
-
-int update(FILE *db, int id, ENTITY *entity);
+//ENTITY *select(FILE *db, int id);
+//
+//int delete(FILE *db, int id);
+//
+//int insert(FILE *db, ENTITY *entity);
+//
+//int update(FILE *db, int id, ENTITY *entity);
 
 //////////////////////////////////////////////////////
