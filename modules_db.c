@@ -29,6 +29,8 @@ void start_managing() {
 
 /*
 
+select column1, column2, ... from <tablename>
+
 1. SELECT
 2. INSERT
 3. UPDATE
@@ -46,13 +48,28 @@ int get_menu_item() {
 
 void handle_item(int number) {
     int code = 1;
+    if (number >= 1 && number <= 4) {
+        handle_query();
+    }
     switch (number) {
-        case 1:
-            printf();
-            printf();
-            scanf();
+        case 5:
             break;
         default:
-
+            code = 0;
     }
+    return code;
+}
+
+void handle_query() {
+    printf("Type in select query, please: ");
+    char *query = get_line_from_stdin();
+    token **query_tokens = tokenize(query);
+    query_t *query = parse_query(query_tokens);
+    switch (query->query_id) {
+        case 1: {
+            tb_entity *entity = select(query->select_query);
+            output_entity(entity);
+        }
+    }
+    free(query);
 }
