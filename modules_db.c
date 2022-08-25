@@ -17,7 +17,7 @@ int main() {
 void start_managing() {
     int flag = 1;
     while (flag) {
-//        show_menu();
+        show_menu();
         printf(">> ");
         int number = get_menu_item();
         if (number == -1) {
@@ -28,6 +28,22 @@ void start_managing() {
             handle_item(number);
         }
     }
+}
+
+void show_menu() {
+    printf(" ,^^'=============='^^.\n");
+    printf("|  DB_MANAGING_SYSTEM  |\n");
+    printf("'.=======.           .'\n");
+    printf("1. SELECT \\           \\\n");
+    printf("2. INSERT |            |\n");
+    printf("3. UPDATE |            |\n");
+    printf("4. DELETE \\_           |\n");
+    printf("5. List module          |\n");
+    printf("6. Delete modules       |\n");
+    printf("7. Protect module       |\n");
+    printf("8. Module MEM_LVL/cell \\\n");
+    printf("9. Set protection level |\n");
+    printf("'----------------------'\n");
 }
 
 /*
@@ -58,23 +74,32 @@ int get_menu_item() {
 
 void handle_item(int number) {
     switch (number) {
-        case 1 : //select();
+        case 1 : printf("SELECT module by ID\n>> ");
+            getchar();
             break;
-        case 2 : //insert();
+        case 2 : printf("INSERT module...\n>> ");
+            getchar();
             break;
-        case 3 : //update();
+        case 3 : printf("UPDATE module by ID\n>> ");
+            getchar();
             break;
-        case 4 : //delete();
+        case 4 : printf("DELETE module by ID\n>> ");
+            getchar();
             break;
-        case 5 : //get_active_mods();
+        case 5 : printf("GET ALL active modules\n");
+            getchar();
             break;
-        case 6 : //delete_mods();
+        case 6 : printf("DELETE MODULES\n>> ");
+            getchar();
             break;
-        case 7 : //lockdown();
+        case 7 : printf("PROTECT module by ID\n>> ");
+            getchar();
             break;
-        case 8 : //escalate();
+        case 8 : printf("MOVE module by ID\n>> ");
+            getchar();
             break;
-        case 9 : //set_mem_level();
+        case 9 : printf("SET PROTECTION LEVEL TO:\n>> ");
+            getchar();
             break;
     }
 }
