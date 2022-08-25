@@ -4,6 +4,7 @@
 #include "database.h"
 #include "tokenizer.h"
 
+#define ERR_MESSAGE_MAX_LEN 128
 
 #define _THROW_ERROR(fmt, ...) {              \
     char err_message[ERR_MESSAGE_MAX_LEN];    \
@@ -13,7 +14,7 @@
 
 extern char *modules_columns[TABLE_COLUMNS_MAX_SIZE];
 extern char *levels_columns[TABLE_COLUMNS_MAX_SIZE];
-char *statusses_columns[TABLE_COLUMNS_MAX_SIZE];
+extern char *statusses_columns[TABLE_COLUMNS_MAX_SIZE];
 
 int search_array(char **array, char *search);
 
@@ -32,12 +33,14 @@ parser_t *new_parser(token_t **tokens, int tokens_size);
 token_t *curr_token(parser_t *parser);
 
 void skip_token(parser_t *parser);
+int expect_token(parser_t *parser, token_kind_t kind);
+token_t *seek_token(parser_t *parser);
 
 query_t *parse(token_t **tokens, int tokens_size);
 
 query_t *parse_query(parser_t *parser);
 
-void validate_query_columns(parser_t *parser, char *str_columns, int *bin_columns,
+void validate_query_columns(parser_t *parser, char **str_columns, int *bin_columns,
                             int table_id, int columns_idx);
 
 query_t *parse_select_query(parser_t *parser, int query_id);

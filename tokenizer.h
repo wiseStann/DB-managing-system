@@ -3,7 +3,7 @@
 
 #define TOKEN_MAX_LEN 128
 
-extern char *_keywords;
+extern char *_keywords[10];
 
 int is_key_word(char *word);
 
@@ -57,7 +57,7 @@ token_t *tokenize_word(tokenizer_t *t);
 
 token_t *tokenize_number(tokenizer_t *t);
 
-token_t *tokenize_number(tokenizer_t *t);
+token_t *tokenize_punctuator(tokenizer_t *t);
 
 token_t *tokenize_string(tokenizer_t *t);
 

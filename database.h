@@ -1,6 +1,8 @@
 #ifndef DATABASE_SRC_H_
 #define DATABASE_SRC_H_
 
+#include "tokenizer.h"
+
 #define MODULES_TB_ID   1
 #define LEVELS_TB_ID    2
 #define STATUSSES_TB_ID 3

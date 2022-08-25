@@ -1,10 +1,14 @@
+#include <stdlib.h>
 #include "database.h"
+#include "tokenizer.h"
+#include "parser.h"
 #include "io.h"
 
 void start_managing();
 void show_menu();
 int get_menu_item();
-void handle_item(int);
+int handle_item(int);
+void handle_query();
 
 int main() {
     start_managing();
@@ -43,6 +47,23 @@ select column1, column2, ... from <tablename>
 9. Set protection flag of the specified memory level
 
 */
+
+void show_menu() {
+    printf(" ,^^'=============='^^.\n");
+    printf("|  DB_MANAGING_SYSTEM  |\n");
+    printf("'.=======.           .'\n");
+    printf("1. SELECT \\           \\\n");
+    printf("2. INSERT |            |\n");
+    printf("3. UPDATE |            |\n");
+    printf("4. DELETE \\_           |\n");
+    printf("5. List module          |\n");
+    printf("6. Delete modules       |\n");
+    printf("7. Protect module       |\n");
+    printf("8. Module MEM_LVL/cell \\\n");
+    printf("9. Set protection level |\n");
+    printf("'----------------------'\n");
+}
+
 int get_menu_item() {
     int item;
     int res = scanf("%d", &item);
@@ -50,26 +71,47 @@ int get_menu_item() {
     if (res != 1 || !spaces_only)
         item = -1;
     if (item < 0 || item > 9) {
-        item = -1
+        item = -1;
     }
     return item;
 }
 
-void handle_item(int number) {
+int handle_item(int number) {
     int code = 1;
     if (number >= 1 && number <= 4) {
         handle_query();
     }
     switch (number) {
-        case 5 : //get_active_mods();
+        case 1 : printf("SELECT module by ID\n>> ");
+            select_q *query = NULL;
+            select(query);
             break;
-        case 6 : //delete_mods();
+        case 2 : printf("INSERT module...\n>> ");
+            insert_q *insert_query = NULL;
+            insert(insert_query);
             break;
-        case 7 : //lockdown();
+        case 3 : printf("UPDATE module by ID\n>> ");
+            update_q *update_query = NULL;
+            update(update_query);
             break;
-        case 8 : //escalate();
+        case 4 : printf("DELETE module by ID\n>> ");
+            delete_q *delete_query = NULL;
+            delete(delete_query);
             break;
-        case 9 : //set_mem_level();
+        case 5 : printf("GET ALL active modules\n");
+            getchar();
+            break;
+        case 6 : printf("DELETE MODULES\n>> ");
+            getchar();
+            break;
+        case 7 : printf("PROTECT module by ID\n>> ");
+            getchar();
+            break;
+        case 8 : printf("MOVE module by ID\n>> ");
+            getchar();
+            break;
+        case 9 : printf("SET PROTECTION LEVEL TO:\n>> ");
+            getchar();
             break;
         default:
             code = 0;
@@ -82,9 +124,9 @@ void handle_query() {
     int query_size, tokens_size;
     char *query = get_line_from_stdin(&query_size);
     if (query) {
-        token **query_tokens = tokenize_query(query, query_size, &tokens_size);
+        token_t **query_tokens = tokenize(query, query_size, &tokens_size);
         if (query_tokens) {
-            query_t *query = parse_query(query_tokens, tokens_size);
+            query_t *query = parse(query_tokens, tokens_size);
             if (query) {
                 // switch (query->query_id) {
                 //     case 1:

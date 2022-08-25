@@ -1,9 +1,10 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include "tokenizer.h"
 
-char *_keywords = {
+char *_keywords[10] = {
     "select", "insert", "update",
     "delete", "from", "group by",
     "into", "set", "where", NULL,
@@ -17,7 +18,7 @@ int is_key_word(char *word) {
     return found;
 }
 
-token_t *new_token(char str_token[WORD_MAX_LEN], token_kind_t kind) {
+token_t *new_token(char str_token[TOKEN_MAX_LEN], token_kind_t kind) {
     token_t *token = (token_t *)malloc(sizeof(struct Token));
     token->kind = kind;
     strcpy(token->str_token, str_token);
@@ -69,7 +70,7 @@ token_t **tokenize(char *query, int query_size, int *tokens_size) {
     token_t **tokens = tokenize_query(t);
     *tokens_size = t->curr_pos;
     if (t->state == 0) {
-        for (int i = 0; i < tokens_size; i++)
+        for (int i = 0; i < *tokens_size; i++)
             free(tokens[i]);
         free(tokens);
         tokens = NULL;
@@ -81,16 +82,21 @@ token_t **tokenize(char *query, int query_size, int *tokens_size) {
 token_t **tokenize_query(tokenizer_t *t) {
     printf("Debug [tokenize_query]\n");
     token_t **tokens = (token_t **)malloc(sizeof(struct Token*));
+    int tok_idx = 0;
     for (; t->curr_pos < t->query_size; ) {
-        char current = curr_symbol(t);
         token_t *next_token = NULL;
+        char current = curr_symbol(t);
         if (isalpha(current))
             next_token = tokenize_word(t);
         else if (isdigit(current))
             next_token = tokenize_number(t);
         else
             next_token = tokenize_punctuator(t);
+
+        tokens[tok_idx++] = next_token;
     }
+
+    return tokens;
 }
 
 token_t *tokenize_word(tokenizer_t *t) {
@@ -115,7 +121,7 @@ token_t *tokenize_number(tokenizer_t *t) {
     printf("Debug [tokenize_number]\n");
     char str_number[TOKEN_MAX_LEN], next;
     int idx = 0;
-    while (isdigit(next = curr_symbol())) {
+    while (isdigit(next = curr_symbol(t))) {
         str_number[idx] = next;
         skip_char(t);
         idx++;
@@ -131,8 +137,8 @@ token_t *tokenize_punctuator(tokenizer_t *t) {
     if (current == '\"')
         token = tokenize_string(t);
     else {
-        token_kind_t kind;
-        token = new_token(current, get_punct_kind(current));
+        // token_kind_t kind;
+        token = new_token(&current, get_punct_kind(current));
     }
     return token;
 }

@@ -2,6 +2,7 @@
 #define IO_H_
 
 #include <stdio.h>
+#include <ctype.h>
 
 #define DEFAULT_QUERY_SIZE 128
 #define REALLOC_CAP_VAL    16

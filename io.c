@@ -1,8 +1,8 @@
-#include <ctype.h>
+#include <stdlib.h>
 #include "io.h"
 
-
 int skip_spaces() {
+    char ch;
     int spaces_only = 1;
     while ((ch = getchar()) != '\n' && ch != EOF) {
         if (!isspace(ch))
@@ -14,7 +14,8 @@ int skip_spaces() {
 char *get_line_from_stdin(int *size) {
     char *query = (char *)malloc(DEFAULT_QUERY_SIZE);
     int idx = 0, ch, code = 1;
-    while ((ch = getc()) != '\n' && ch != EOF && code) {
+
+    while ((ch = getc(stdin)) != '\n' && ch != EOF && code) {
         if (idx >= DEFAULT_QUERY_SIZE) {
             char *tmp = (char*)realloc(query, idx + REALLOC_CAP_VAL);
             if (tmp == NULL) {

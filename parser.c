@@ -1,7 +1,7 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "parser.h"
-
 
 char *modules_columns[TABLE_COLUMNS_MAX_SIZE] = {
     "id", "name", "mem_level_number",
@@ -93,7 +93,7 @@ int expect_token(parser_t *parser, token_kind_t kind) {
     return curr_token(parser)->kind == kind;
 }
 
-token_t *seek(parser_t *parser) {
+token_t *seek_token(parser_t *parser) {
     int seek_pos = parser->curr_pos + 1;
     token_t *seeked = NULL;
     if (seek_pos < parser->tokens_size)
@@ -133,12 +133,12 @@ query_t *parse_query(parser_t *parser) {
     return query;
 }
 
-void validate_query_columns(parser_t *parser, char *str_columns, int *bin_columns,
+void validate_query_columns(parser_t *parser, char **str_columns, int *bin_columns,
                             int table_id, int columns_idx) {
     int res = 1;
-    for (int i = 0; i < columns_idx; i++) {
+    for (int i = 0; i < columns_idx; i++) { 
         res &= search_array_by_table_id(table_id, str_columns[i]);
-        int column_idx = get_index_of_field_in_struct()
+        int column_idx = get_index_of_field_in_struct(table_id, str_columns[i]);
         if (column_idx != -1)
             bin_columns[column_idx] = 1;
     }
@@ -160,13 +160,13 @@ typedef struct SelectQuery {
 */
 query_t *parse_select_query(parser_t *parser, int query_id) {
     printf("Debug [parse_select_query]\n");
-    skip_token(); // skip select keyword
+    skip_token(parser); // skip select keyword
     int bin_columns[TABLE_COLUMNS_MAX_SIZE], table_id;
     char *str_columns[TABLE_COLUMNS_MAX_SIZE];
     token_t *next;
     int columns_idx = 0;
     // parse columns list
-    while ((next = curr_token()) != NULL && parser->state) {
+    while ((next = curr_token(parser)) != NULL && parser->state) {
         if (next->kind != TOKEN_WORD) {
             _THROW_ERROR("Expected word token as the name of a column\n");
             parser->state = 0;
@@ -189,7 +189,7 @@ query_t *parse_select_query(parser_t *parser, int query_id) {
     } else {
 
     }
-    printf("Debug finish [parse_select_query]")
+    printf("Debug finish [parse_select_query]");
     validate_query_columns(parser, str_columns, bin_columns, table_id, columns_idx);
     query_t *query = new_query(query_id);
     query->select_query = new_select_query(bin_columns, table_id);
@@ -197,19 +197,19 @@ query_t *parse_select_query(parser_t *parser, int query_id) {
 }
 
 // insert into modules (id, name) (12, "new module")
-insert_q *parse_insert_query(parser_t *parser, int query_id) {
+query_t *parse_insert_query(parser_t *parser, int query_id) {
     printf("Debug [parse_insert_query]\n");
     return NULL;
 }
 
 // update modules set id = 12, name = "updated module"
-update_q *parse_update_query(parser_t *parser, int query_id) {
+query_t *parse_update_query(parser_t *parser, int query_id) {
     printf("Debug [parse_update_query]\n");
     return NULL;
 }
 
 // delete from modules where id = 2
-delete_q *parse_delete_query(parser_t *parser, int query_id) {
+query_t *parse_delete_query(parser_t *parser, int query_id) {
     printf("Debug [parse_delete_query]\n");
     return NULL;
 }
