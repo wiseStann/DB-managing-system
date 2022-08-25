@@ -149,24 +149,15 @@ void validate_query_columns(parser_t *parser, char **str_columns, int *bin_colum
 }
 
 // select id, name from modules (group by id)
-
-/*
-
-typedef struct SelectQuery {
-    int columns[TABLE_COLUMNS_MAX_SIZE];
-    int table_id;
-} select_q;
-
-*/
 query_t *parse_select_query(parser_t *parser, int query_id) {
     printf("Debug [parse_select_query]\n");
-    skip_token(parser); // skip select keyword
+    skip_token(parser);  // skip select keyword
     int bin_columns[TABLE_COLUMNS_MAX_SIZE], table_id;
     char *str_columns[TABLE_COLUMNS_MAX_SIZE];
     token_t *next;
     int columns_idx = 0;
     // parse columns list
-    while ((next = curr_token(parser)) != NULL && parser->state) {
+    while ((next = curr_token()) != NULL && next->kind != TOKEN_FROM_KEYWORD && parser->state) {
         if (next->kind != TOKEN_WORD) {
             _THROW_ERROR("Expected word token as the name of a column\n");
             parser->state = 0;
@@ -174,12 +165,17 @@ query_t *parse_select_query(parser_t *parser, int query_id) {
             printf("NEXT LINE CAN THROW SEGFAULT\n");
             strcpy(str_columns[columns_idx], next->str_token);
             columns_idx++;
+            skip_token(parser);  // skip column name
             if (!expect_token(parser, TOKEN_COMMA) &&
-                strcmp(seek_token(parser)->str_token, "from") != 0) {
+                seek_token(parser)->kind != TOKEN_FROM_KEYWORD) {
                 _THROW_ERROR("Expected comma token after column name\n");
                 parser->state = 0;
-            } else {
-                skip_token(parser); // skip comma
+            } else if (seek_token(parser)->kind != TOKEN_FROM_KEYWORD) {
+                skip_token(parser);  // skip comma
+                if (curr_token(parser)->kind == TOKEN_KEYWORD) {
+                    _THROW_ERROR("Expected column name after comma\n");
+                    parser->state = 0;
+                }
             }
         }
     }
@@ -187,9 +183,10 @@ query_t *parse_select_query(parser_t *parser, int query_id) {
         _THROW_ERROR("Expected keyword 'from' after columns list\n");
         parser->state = 0;
     } else {
-
+        skip_token(parser);  // skip from keyword
+        table_id = get_table_id_by_name(curr_token(parser));
+        skip_token(parser);  // skip table name
     }
-    printf("Debug finish [parse_select_query]");
     validate_query_columns(parser, str_columns, bin_columns, table_id, columns_idx);
     query_t *query = new_query(query_id);
     query->select_query = new_select_query(bin_columns, table_id);
@@ -199,17 +196,172 @@ query_t *parse_select_query(parser_t *parser, int query_id) {
 // insert into modules (id, name) (12, "new module")
 query_t *parse_insert_query(parser_t *parser, int query_id) {
     printf("Debug [parse_insert_query]\n");
-    return NULL;
+    skip_token(parser);  // skip insert keyword
+    int bin_columns[TABLE_COLUMNS_MAX_SIZE], table_id, size = 0;
+    token_t **values = NULL;
+    if (!expect_token(parser, TOKEN_INTO_KEYWORD)) {
+        _THROW_ERROR("Expected 'into' keyword after 'insert' keyword\n");
+        parser->state = 0;
+    } else {
+        skip_token(parser);  // skip into keyword
+        table_id = get_table_id_by_name(curr_token(parser));
+        skip_token(parser);  // skip table name
+        if (!expect_token(parser, TOKEN_OPEN_BRACKET)) {
+            _THROW_ERROR("Expected open bracket after table name\n");
+            parser->state = 0;
+        } else {
+            skip_token(parser);  // skip open bracket
+            token_t *next;
+            while ((next = curr_token()) != NULL && next->kind != TOKEN_CLOSE_BRACKET && parser->state) {
+                if (next->kind != TOKEN_WORD) {
+                    _THROW_ERROR("Expected word token as the name of a column\n");
+                    parser->state = 0;
+                } else if (!search_array_by_table_id(table_id, next->str_token)) {
+                    _THROW_ERROR("Invalid table column name\n");
+                    parser->state = 0;
+                } else {
+                    int column_idx = get_index_of_field_in_struct(table_id, next->str_token);
+                    bin_columns[column_idx] = 1;
+                    size++;
+                    skip_token(parser);  // skip column name
+                    if (!expect_token(parser, TOKEN_COMMA) &&
+                        seek_token(parser)->kind != TOKEN_CLOSE_BRACKET) {
+                        _THROW_ERROR("Expected comma token after column name\n");
+                        parser->state = 0;
+                    } else if (seek_token(parser)->kind != TOKEN_CLOSE_BRACKET) {
+                        skip_token(parser);  // skip comma
+                        if (curr_token(parser)->kind == TOKEN_KEYWORD) {
+                            _THROW_ERROR("Expected column name after comma\n");
+                            parser->state = 0;
+                        }
+                    }
+                }
+            }
+            if (next == NULL) {
+                _THROW_ERROR("Can't find close bracket\n");
+                parser->state = 0;
+            } else {
+                values = (token_t**)malloc(size * sizeof(struct Token*));
+                int values_idx = 0;
+                skip_token(parser);  // skip close bracket
+                if (!expect_token(parser, TOKEN_OPEN_BRACKET)) {
+                    _THROW_ERROR("Expected open bracket after (colunms...)\n");
+                    parser->state = 0;
+                } else {
+                    skip_token(parser);  // skip open bracket
+                    while ((next = curr_token()) != NULL && next->kind != TOKEN_CLOSE_BRACKET && parser->state) {
+                        skip_token(parser);  // skip column name
+                        values[values_idx] = next;
+                        if (!expect_token(parser, TOKEN_COMMA) &&
+                            seek_token(parser)->kind != TOKEN_CLOSE_BRACKET) {
+                            _THROW_ERROR("Expected comma token after column value\n");
+                            parser->state = 0;
+                        } else if (seek_token(parser)->kind != TOKEN_CLOSE_BRACKET) {
+                            skip_token(parser);  // skip comma
+                            if (curr_token(parser)->kind == TOKEN_KEYWORD) {
+                                _THROW_ERROR("Expected column value after comma\n");
+                                parser->state = 0;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    query_t *query = new_query(query_id);
+    query->insert_query = new_insert_query(table_id, bin_columns, size, values);
+    return query;
 }
 
 // update modules set id = 12, name = "updated module"
 query_t *parse_update_query(parser_t *parser, int query_id) {
     printf("Debug [parse_update_query]\n");
-    return NULL;
+    skip_token(parser);  // skip update keyword
+    int table_id = get_table_id_by_name(curr_token(parser));
+    token_t **values = (token_t **)malloc(TABLE_COLUMNS_MAX_SIZE * sizeof(struct Token*));
+    int bin_columns[TABLE_COLUMNS_MAX_SIZE], size = 0;
+    int values_idx = 0;
+    if (!expect_token(parser, TOKEN_SET_KEYWORD)) {
+        _THROW_ERROR("Expected 'set' keyword after table name\n");
+        parser->state = 0;
+    } else {
+        skip_token(parser);  // skip set keyword
+        while ((next = curr_token()) != NULL && parser->state) {
+            if (!search_array_by_table_id(table_id, next->str_token)) {
+                _THROW_ERROR("Invalid table column name\n");
+                parser->state = 0;
+            } else {
+                int column_idx = get_index_of_field_in_struct(table_id, next->str_token);
+                bin_columns[column_idx] = 1;
+                size++;
+                if (!expect_token(parser, TOKEN_ASSIGN)) {
+                    _THROW_ERROR("Expected '=' token after column name\n");
+                    parser->state = 0;
+                } else {
+                    skip_token(parser);  // skip assign token
+                    token_t *value = curr_token(parser);
+                    values[values_idx] = value;
+                    skip_token(parser);  // skip value token
+                    if (!expect_token(parser, TOKEN_COMMA) && seek_token(parser) != NULL) {
+                        _THROW_ERROR("Expected comma token after column expression\n");
+                        parser->state = 0;
+                    } else if (seek_token(parser)->kind == NULL) {
+                        skip_token(parser);  // skip comma
+                        if (curr_token(parser) == NULL) {
+                            _THROW_ERROR("Expected column expression after comma\n");
+                            parser->state = 0;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    query_t *query = new_query(query_id);
+    query->insert_query = new_update_query(table_id, bin_columns, size, values);
+    return query;
 }
 
 // delete from modules where id = 2
 query_t *parse_delete_query(parser_t *parser, int query_id) {
     printf("Debug [parse_delete_query]\n");
-    return NULL;
+    skip_token(parser);  // skip delete keyword
+    int table_id;
+    token_t **values = (token_t **)malloc(sizeof(struct Token*));
+    int bin_columns[TABLE_COLUMNS_MAX_SIZE], size = 0;
+    int values_idx = 0;
+    if (!expect_token(parser, TOKEN_FROM_KEYWORD)) {
+        _THROW_ERROR("Expected 'from' keyword after 'delete' keyword\n");
+        parser->state = 0;
+    } else {
+        skip_token(parser);  // skip from token
+        table_id = get_table_id_by_name(curr_token(parser));
+        skip_token(parser);  // skip table name
+        if (!expect_token(parser, TOKEN_WHERE_KEYWORD)) {
+            _THROW_ERROR("Expected 'where' keyword after table name\n");
+            parser->state = 0;
+        } else {
+            skip_token(parser);  // skip where keyword
+            token_t *column_name = curr_token(parser);
+            if (!search_array_by_table_id(table_id, column_name->str_token)) {
+                _THROW_ERROR("Invalid table column name\n");
+                parser->state = 0;
+            } else {
+                int column_idx = get_index_of_field_in_struct(table_id, column_name->str_token);
+                bin_columns[column_idx] = 1;
+                size++;
+                if (!expect_token(parser, TOKEN_ASSIGN)) {
+                    _THROW_ERROR("Expected assign token after column name\n");
+                    parser->state = 0;
+                } else {
+                    skip_token(parser);  // skip assign token
+                    token_t *value = curr_token(parser);
+                    values[0] = value;
+                    skip_token(parser);  // skip value token
+                }
+            }
+        }
+    }
+    query_t *query = new_query(query_id);
+    query->insert_query = new_delete_query(table_id, bin_columns, size, values);
+    return query;
 }
