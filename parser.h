@@ -20,6 +20,10 @@ int search_array(char **array, char *search);
 
 int search_array_by_table_id(int query_id, char *column);
 
+int get_index_of_field_in_struct(int table_id, char *column);
+
+int get_table_id_by_name(char *name);
+
 
 typedef struct Parser {
     token_t **tokens;

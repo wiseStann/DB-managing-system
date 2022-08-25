@@ -1,6 +1,7 @@
 #ifndef DATABASE_SRC_H_
 #define DATABASE_SRC_H_
 
+#include <stdio.h>
 #include "tokenizer.h"
 
 #define MODULES_TB_ID   1
@@ -96,11 +97,11 @@ void free_query(query_t *query);
 
 select_q *new_select_query(int columns[TABLE_COLUMNS_MAX_SIZE], int table_id);
 
-insert_q *new_insert_query(int table_id, int columns[TABLE_COLUMNS_MAX_SIZE], token_t **values);
+insert_q *new_insert_query(int table_id, int columns[TABLE_COLUMNS_MAX_SIZE], int size, token_t **values);
 
-update_q *new_update_query(int table_id, int columns[TABLE_COLUMNS_MAX_SIZE], token_t **values);
+update_q *new_update_query(int table_id, int columns[TABLE_COLUMNS_MAX_SIZE], int size, token_t **values);
 
-delete_q *new_delete_query(int table_id, int columns[TABLE_COLUMNS_MAX_SIZE], token_t **values);
+delete_q *new_delete_query(int table_id, int columns[TABLE_COLUMNS_MAX_SIZE], int size, token_t **values);
 
 
 //////////////////////////////////////////////////////
@@ -108,11 +109,42 @@ delete_q *new_delete_query(int table_id, int columns[TABLE_COLUMNS_MAX_SIZE], to
 
 void select(select_q *query);
 
-int insert(insert_q *query);
+void insert(insert_q *query);
 
-int update(update_q *query);
+void update(update_q *query);
 
-int delete(delete_q *query);
+void delete(delete_q *query);
+
+void select_from_database_statusses(int columns[TABLE_COLUMNS_MAX_SIZE]);
+
+void insert_from_database_statusses(int columns[TABLE_COLUMNS_MAX_SIZE], token_t** values);
+
+void update_from_database_statusses(int columns[TABLE_COLUMNS_MAX_SIZE], token_t** values);
+
+
+void delete_from_database_statusses(int columns[TABLE_COLUMNS_MAX_SIZE], token_t** values);
+
+void select_from_database_modules(int columns[TABLE_COLUMNS_MAX_SIZE]);
+
+void insert_from_database_modules(int columns[TABLE_COLUMNS_MAX_SIZE], token_t** values);
+
+void update_from_database_modules(int columns[TABLE_COLUMNS_MAX_SIZE], token_t** values);
+
+void delete_from_database_modules(int columns[TABLE_COLUMNS_MAX_SIZE], token_t** values);
+
+void select_from_database_levels(int columns[TABLE_COLUMNS_MAX_SIZE]);
+
+void insert_from_database_levels(int columns[TABLE_COLUMNS_MAX_SIZE], token_t** values);
+
+void update_from_database_levels(int columns[TABLE_COLUMNS_MAX_SIZE], token_t** values);
+
+void delete_from_database_levels(int columns[TABLE_COLUMNS_MAX_SIZE], token_t** values);
+
+void rewriting_file_in_insert1(levels_tb* tmp_db, levels_tb* swap_db, FILE* file);
+
+void rewriting_file_in_insert2(statusses_tb* tmp_db, statusses_tb* swap_db, FILE* file);
+
+void rewriting_file_in_insert3(modules_tb tmp_db, modules_tb swap_db, FILE* file);
 
 
 #endif  // DATABASE_SRC_H_

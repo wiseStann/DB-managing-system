@@ -49,6 +49,7 @@ typedef struct Tokenizer {
     int query_size;
     int curr_pos;
     int state;
+    int tokens_size;
 } tokenizer_t;
 
 tokenizer_t *new_tokenizer(char *query, int query_size);
