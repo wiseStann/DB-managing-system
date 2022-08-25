@@ -3,11 +3,11 @@
 
 void select(select_q *query) {
     switch (query->table_id) {
-        case MODULES_TB_ID: modules_tb tmp_db; tmp_db.curr_table = 1; read_from_database_modules(tmp_db, );
+        case MODULES_TB_ID: read_from_database_modules(query->columns);
             break;
-        case LEVELS_TB_ID: levels_tb tmp_db; tmp_db.curr_table = 2; read_from_database_levels(tmp_db, );
+        case LEVELS_TB_ID: read_from_database_levels(query->columns);
             break;
-        case STATUSSES_TB_ID: statusses_tb tmp_db; tmp_db.curr_table = 3; read_from_database_statusses(tmp_db, );
+        case STATUSSES_TB_ID: read_from_database_statusses(query->columns);
             break;
         default:
             break;
@@ -34,25 +34,68 @@ int update(FILE *db, int id, tb_entity *entity) {
 
 }
 
-read_from_database(tb_entity tmp_db) {
-    switch (tmp_db.curr_table) {
-    case 1: gets()
-        break;
-    
-    default:
-        break;
+void read_from_database_modules(int columns[COLUMN_SIZE]) {
+    printf("[DEBUG] read_from_database_module\n");
+
+    FILE* file;
+    file = fopen("master_levels.db", "rb");
+
+    int offset = getsize_file(file);
+    rewind(file);
+    for (int index = 0; index < offset; index++) {  
+        levels_tb tmp_db;
+        fread(&tmp_db, sizeof(levels_tb), 1, file);
+
+        //Обработка вывода
+
+        for (int i = 0; i < COLUMN_SIZE)
+
+        printf("%d %d %d\n", tmp_db.mem_level_number, tmp_db.cells_number, tmp_db.protect_flag);
     }
+
+    fclose(file);
 }
 
-int read_file(FILE **file) {
-  data data_i;
-  int n = getsize_file(file);
-  rewind(*file);
+void read_from_database_levels() {
+    printf("[DEBUG] read_from_database_levels\n");
 
-  for (int i = 0; i < n; i++) {
-    fread(&data_i, sizeof(data), 1, *file);
-    printf("%d %d %d %d %d %d %d %d\n", data_i.year, data_i.month, data_i.day,
-           data_i.hour, data_i.minute, data_i.sec, data_i.status, data_i.code);
-  }
-  rewind(*file);
-  return 0;
+    FILE* file;
+    file = fopen("master_modules.db", "rb");
+
+    int offset = getsize_file(file);
+
+    rewind(file);
+
+    for (int index = 0; index < offset; index++) {  
+        modules_tb tmp_db;
+        fread(&tmp_db, sizeof(modules_tb), 1, file);
+
+        //Обработка вывода
+        printf("%d %s %d %d %d\n", tmp_db.id, tmp_db.name, tmp_db.mem_level_number, tmp_db.level_cell_number, tmp_db.del_flag);
+    }
+
+    fclose(file);
+    return 0;
+}
+
+void read_from_database_statusses() {
+    printf("[DEBUG] read_from_database_statusses\n");
+
+    FILE* file;
+    file = fopen("master_status_events.db", "rb");
+
+    int offset = getsize_file(file);
+
+    rewind(file);
+
+    for (int index = 0; index < offset; index++) {  
+        statusses_tb tmp_db;
+        fread(&tmp_db, sizeof(statusses_tb), 1, file);
+
+        //Обработка вывода
+        printf("%d %d %d %s %s\n", tmp_db.event_id, tmp_db.module_id, tmp_db.new_module_status, tmp_db.status_date_change, tmp_db.status_date_change);
+    }
+
+    fclose(file);
+    return 0;
+}

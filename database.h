@@ -4,6 +4,8 @@
 #define LEVELS_TB_ID 2
 #define STATUSSES_TB_ID 3
 
+#define COLUMN_SIZE 10
+
 typedef struct Modules {
     int id;
     char name[30];
@@ -79,3 +81,4 @@ int insert(FILE *db, tb_entity *entity);
 int update(FILE *db, int id, tb_entity *entity);
 
 //////////////////////////////////////////////////////
+
