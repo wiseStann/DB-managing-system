@@ -1,4 +1,5 @@
 #include "database.h"
+#include <stdio.h>
 
 void select_from_database_levels(int columns[COLUMN_SIZE]) {
     printf("[DEBUG] read_from_database_levels\n");
@@ -14,11 +15,11 @@ void select_from_database_levels(int columns[COLUMN_SIZE]) {
 
         //Обработка вывода
 
-        if (a[0] == 1)
+        if (columns[0] == 1)
             printf("%d", tmp_db.mem_level_number);
-        if (a[1] == 1)
+        if (columns[1] == 1)
             printf(" %d", tmp_db.cells_number);
-        if (a[2] == 1)
+        if (columns[2] == 1)
             printf(" %d", tmp_db.protect_flag);
 
         printf("\n");
@@ -27,4 +28,12 @@ void select_from_database_levels(int columns[COLUMN_SIZE]) {
     }
 
     fclose(file);
+}
+
+int getsize_file(FILE **file) {
+  int size = 0;
+  fseek(*file, 0, SEEK_END);
+  size = ftell(*file) / sizeof(levels_tb);
+  rewind(*file);
+  return size;
 }

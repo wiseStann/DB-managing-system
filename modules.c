@@ -1,4 +1,5 @@
 #include "database.h"
+#include <stdio.h>
 
 void select_from_database_modules(int columns[COLUMN_SIZE]) {
     printf("[DEBUG] read_from_database_modules\n");
@@ -16,15 +17,15 @@ void select_from_database_modules(int columns[COLUMN_SIZE]) {
 
         //Обработка вывода
 
-        if (a[0] == 1)
+        if (columns[0] == 1)
             printf("%d", tmp_db.id);
-        if (a[1] == 1)
+        if (columns[1] == 1)
             printf(" %s", tmp_db.name);
-        if (a[2] == 1)
+        if (columns[2] == 1)
             printf(" %d", tmp_db.mem_level_number);
-        if (a[3] == 1)
+        if (columns[3] == 1)
             printf(" %d", tmp_db.level_cell_number);
-        if (a[4] == 1)
+        if (columns[4] == 1)
             printf(" %d", tmp_db.del_flag);
 
         printf("\n");
@@ -34,4 +35,12 @@ void select_from_database_modules(int columns[COLUMN_SIZE]) {
 
     fclose(file);
     return 0;
+}
+
+int getsize_file(FILE **file) {
+  int size = 0;
+  fseek(*file, 0, SEEK_END);
+  size = ftell(*file) / sizeof(modules_tb);
+  rewind(*file);
+  return size;
 }
