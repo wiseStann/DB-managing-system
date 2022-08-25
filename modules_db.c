@@ -69,26 +69,28 @@ void handle_query() {
         token **query_tokens = tokenize_query(query, query_size, &tokens_size);
         if (query_tokens) {
             query_t *query = parse_query(query_tokens, tokens_size);
-            switch (query->query_id) {
-                case 1:
-                    select(query->select_query);
-                    break;
-                case 2:
-                    insert(query->insert_query);
-                    break;
-                case 3:
-                    update(query->update_query);
-                    break;
-                case 4:
-                    delete(query->delete_query);
-                    break;
-                default:
-                    fprintf(stderr, "Invalid type of query [handle_query]\n");
-                    break;
+            if (query) {
+                switch (query->query_id) {
+                    case 1:
+                        select(query->select_query);
+                        break;
+                    case 2:
+                        insert(query->insert_query);
+                        break;
+                    case 3:
+                        update(query->update_query);
+                        break;
+                    case 4:
+                        delete(query->delete_query);
+                        break;
+                    default:
+                        fprintf(stderr, "Invalid type of query [handle_query]\n");
+                        break;
+                }
+                for (int i = 0; i < tokens_size; i++)
+                    free(query_tokens[i]);
+                free(query_tokens);
             }
-            for (int i = 0; i < tokens_size; i++)
-                free(query_tokens[i]);
-            free(query_tokens);
         }
         free(query);
     }

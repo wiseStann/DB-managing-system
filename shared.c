@@ -9,6 +9,25 @@ query_t *new_query(int query_id) {
     return query;
 }
 
+void free_query(query_t *query) {
+    switch (query->query_id) {
+        case SELECT_QUERY_ID:
+            free(query->select_query);
+            break;
+        case INSERT_QUERY_ID:
+            free(query->insert_query);
+            break;
+        case UPDATE_QUERY_ID:
+            free(query->update_query);
+            break;
+        case DELETE_QUERY_ID:
+            free(query->delete_query);
+            break;
+    }
+    free(query);
+}
+
+
 select_q *new_select_query(int columns[TABLE_COLUMNS_MAX_SIZE], int table_id) {
     select_q *selectq = (select_q *)malloc(sizeof(struct SelectQuery));
     strcpy(selectq->columns, columns);

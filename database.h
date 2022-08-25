@@ -90,6 +90,8 @@ typedef struct Query {
 
 query_t *new_query(int query_id);
 
+void free_query(query_t *query);
+
 select_q *new_select_query(int columns[TABLE_COLUMNS_MAX_SIZE], int table_id);
 
 insert_q *new_insert_query(int table_id, int columns[TABLE_COLUMNS_MAX_SIZE], token_t **values);

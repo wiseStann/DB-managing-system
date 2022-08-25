@@ -12,12 +12,14 @@
 }
 
 extern char *modules_columns[TABLE_COLUMNS_MAX_SIZE];
-extern char *levels_column[TABLE_COLUMNS_MAX_SIZE];
-char *statusses_column[TABLE_COLUMNS_MAX_SIZE];
+extern char *levels_columns[TABLE_COLUMNS_MAX_SIZE];
+char *statusses_columns[TABLE_COLUMNS_MAX_SIZE];
 
 int search_array(char **array, char *search);
 
-int 
+int search_array_by_table_id(int query_id, char *column);
+
+
 typedef struct Parser {
     token_t **tokens;
     int tokens_size;
@@ -34,6 +36,9 @@ void skip_token(parser_t *parser);
 query_t *parse(token_t **tokens, int tokens_size);
 
 query_t *parse_query(parser_t *parser);
+
+void validate_query_columns(parser_t *parser, char *str_columns, int *bin_columns,
+                            int table_id, int columns_idx);
 
 query_t *parse_select_query(parser_t *parser, int query_id);
 

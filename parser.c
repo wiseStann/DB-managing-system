@@ -3,18 +3,18 @@
 #include "parser.h"
 
 
-char *modules_column[TABLE_COLUMNS_MAX_SIZE] = {
+char *modules_columns[TABLE_COLUMNS_MAX_SIZE] = {
     "id", "name", "mem_level_number",
     "level_cell_number", "del_flag",
     NULL,
 };
 
-char *levels_column[TABLE_COLUMNS_MAX_SIZE] = {
+char *levels_columns[TABLE_COLUMNS_MAX_SIZE] = {
    "mem_level_number", "cells_number", "protect_flag",
     NULL,
 };
 
-char *statusses_column[TABLE_COLUMNS_MAX_SIZE] = {
+char *statusses_columns[TABLE_COLUMNS_MAX_SIZE] = {
     "event_id", "module_id", "new_module_status",
     "status_date_change", "status_time_change",
     NULL,
@@ -28,6 +28,46 @@ int search_array(char **array, char *search) {
     return reached;
 }
 
+int get_index_in_array(char **array, char *search) {
+    int index = -1;
+    for (int i = 0; array[i] != NULL && index == -1; i++) {
+        if (strcmp(array[i], search) == 0)
+            index = i;
+    }
+    return index;
+}
+
+int search_array_by_table_id(int table_id, char *column) {
+    int res = 0;
+    switch (table_id) {
+        case MODULES_TB_ID:
+            res = search_array(modules_columns, column);
+            break;
+        case LEVELS_TB_ID:
+            res = search_array(levels_columns, column);
+            break;
+        case STATUSSES_TB_ID:
+            res = search_array(statusses_columns, column);
+            break;
+    }
+    return res;
+}
+
+int get_index_of_field_in_struct(int table_id, char *column) {
+    int index = -1;
+    switch (table_id) {
+        case MODULES_TB_ID:
+            index = get_index_in_array(modules_columns, column);
+            break;
+        case LEVELS_TB_ID:
+            index = get_index_in_array(levels_columns, column);
+            break;
+        case STATUSSES_TB_ID:
+            index = get_index_in_array(statusses_columns, column);
+            break;
+    }
+    return index;
+}
 
 parser_t *new_parser(token_t **tokens, int tokens_size) {
     parser_t *parser = (parser_t *)malloc(sizeof(struct Parser));
@@ -47,6 +87,18 @@ token_t *curr_token(parser_t *parser) {
 
 void skip_token(parser_t *parser) {
     parser->curr_pos++;
+}
+
+int expect_token(parser_t *parser, token_kind_t kind) {
+    return curr_token(parser)->kind == kind;
+}
+
+token_t *seek(parser_t *parser) {
+    int seek_pos = parser->curr_pos + 1;
+    token_t *seeked = NULL;
+    if (seek_pos < parser->tokens_size)
+        seeked = parser->tokens[seek_pos];
+    return seeked;
 }
 
 query_t *parse(token_t **tokens, int tokens_size) {
@@ -74,7 +126,26 @@ query_t *parse_query(parser_t *parser) {
         _THROW_ERROR("Invalid query type, aborted\n");
         parser->state = 0;
     }
+    if (parser->state == 0) {
+        free_query(query);
+        query = NULL;
+    }
     return query;
+}
+
+void validate_query_columns(parser_t *parser, char *str_columns, int *bin_columns,
+                            int table_id, int columns_idx) {
+    int res = 1;
+    for (int i = 0; i < columns_idx; i++) {
+        res &= search_array_by_table_id(table_id, str_columns[i]);
+        int column_idx = get_index_of_field_in_struct()
+        if (column_idx != -1)
+            bin_columns[column_idx] = 1;
+    }
+    if (res == 0) {
+        _THROW_ERROR("Some of specified columns are not in table\n");
+        parser->state = 0;
+    }
 }
 
 // select id, name from modules (group by id)
@@ -90,17 +161,26 @@ typedef struct SelectQuery {
 query_t *parse_select_query(parser_t *parser, int query_id) {
     printf("Debug [parse_select_query]\n");
     skip_token(); // skip select keyword
-    int columns[TABLE_COLUMNS_MAX_SIZE], table_id;
+    int bin_columns[TABLE_COLUMNS_MAX_SIZE], table_id;
+    char *str_columns[TABLE_COLUMNS_MAX_SIZE];
     token_t *next;
-
+    int columns_idx = 0;
     // parse columns list
-    while ((next = curr_token()) != NULL) {
+    while ((next = curr_token()) != NULL && parser->state) {
         if (next->kind != TOKEN_WORD) {
             _THROW_ERROR("Expected word token as the name of a column\n");
             parser->state = 0;
-            break;
-        } else if (search_array()) {
-            
+        } else {
+            printf("NEXT LINE CAN THROW SEGFAULT\n");
+            strcpy(str_columns[columns_idx], next->str_token);
+            columns_idx++;
+            if (!expect_token(parser, TOKEN_COMMA) &&
+                strcmp(seek_token(parser)->str_token, "from") != 0) {
+                _THROW_ERROR("Expected comma token after column name\n");
+                parser->state = 0;
+            } else {
+                skip_token(parser); // skip comma
+            }
         }
     }
     if (next == NULL) {
@@ -109,8 +189,10 @@ query_t *parse_select_query(parser_t *parser, int query_id) {
     } else {
 
     }
+
+    validate_query_columns(parser, str_columns, bin_columns, table_id, columns_idx);
     query_t *query = new_query(query_id);
-    query->select_query = new_select_query(columns, table_id);
+    query->select_query = new_select_query(bin_columns, table_id);
     return query;
 }
 
