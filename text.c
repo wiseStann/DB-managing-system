@@ -18,21 +18,42 @@ int getsize_file(FILE* file) {
 }
 
 int main() {
+   
+void insert_from_database_modules(int columns[TABLE_COLUMNS_MAX_SIZE], token_t** values) {
+    printf("[DEBUG] insert_from_database_modules\n");
     FILE* file;
     file = fopen("master_modules.db", "rb");
-
     int offset = getsize_file(file);
+    modules_tb tmp_db, swap_db;
+    int index;
 
-    rewind(file);
+    int offset = index * sizeof(modules_tb);
+    fseek(file, offset, SEEK_SET);
 
-    for (int index = 0; index < offset; index++) {  
-        modules_tb tmp_db;
-        fread(&tmp_db, sizeof(modules_tb), 1, file);
+    tmp_db.id = values[0];
+    tmp_db.name = values[1];
+    tmp_db.mem_level_number = values[2];
+    tmp_db.level_cell_number = values[3];
+    tmp_db.del_flag = values[4]; 
 
-        //Обработка вывода
-        printf("%d %s %d %d %d\n", tmp_db.id, tmp_db.name, tmp_db.mem_level_number, tmp_db.level_cell_number, tmp_db.del_flag);
+    rewriting_file_in_insert(swap_db, tmp_db, file);
+    swap_db.id++;
+
+    while (swap_db.id < offset) {
+    rewriting_file_in_insert(tmp_db, swap_db, file);
+    swap_db.id++;
     }
 
+    fflush(file);
+
     fclose(file);
+}
+
+void rewriting_file_in_insert(modules_tb tmp_db, modules_tb swap_db, FILE* file) {
+    printf("[DEBUG] rewriting_file_in_insert\n");
+    fread(&tmp_db, sizeof(modules_tb), 1, file);
+    fseek(file, -sizeof(modules_tb), SEEK_SET);
+    fwrite(swap_db, sizeof(modules_tb), 1, file);
+}
     return 0;
 }

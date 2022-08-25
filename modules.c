@@ -1,11 +1,11 @@
 #include "database.h"
 #include <stdio.h>
 
-void select_from_database_modules(int columns[COLUMN_SIZE]) {
+void select_from_database_modules(int columns[TABLE_COLUMNS_MAX_SIZE]) {
     printf("[DEBUG] read_from_database_modules\n");
 
     FILE* file;
-    file = fopen("master_modules.db", "rb");
+    file = fopen("master_modules.db", "r+b");
 
     int offset = getsize_file(file);
 
@@ -34,7 +34,110 @@ void select_from_database_modules(int columns[COLUMN_SIZE]) {
     }
 
     fclose(file);
-    return 0;
+}
+
+void insert_from_database_modules(int columns[TABLE_COLUMNS_MAX_SIZE], token_t** values) {
+    printf("[DEBUG] insert_from_database_modules\n");
+
+    FILE* file;
+    file = fopen("master_modules.db", "r+b");
+    int offset = getsize_file(file);
+    modules_tb tmp_db, swap_db;
+    int index;
+
+    int offset = index * sizeof(modules_tb);
+    fseek(file, offset, SEEK_SET);
+
+    tmp_db.id = values[0];
+    tmp_db.name = values[1];
+    tmp_db.mem_level_number = values[2];
+    tmp_db.level_cell_number = values[3];
+    tmp_db.del_flag = values[4]; 
+
+    rewriting_file_in_insert(swap_db, tmp_db, file);
+    swap_db.id++;
+
+    while (swap_db.id < offset) {
+    rewriting_file_in_insert(tmp_db, swap_db, file);
+    swap_db.id++;
+    }
+
+    fflush(file);
+    fclose(file);
+}
+
+void update_from_database_modules(query->columns) {
+    printf("[DEBUG] update_from_database_modules\n");
+
+    FILE* file;
+    file = fopen("master_modules.db", "r+b");
+    int offset = getsize_file(file);
+    modules_tb tmp_db, swap_db;
+    int index;
+
+    int offset = index * sizeof(modules_tb);
+    fseek(file, offset, SEEK_SET);
+
+    tmp_db.id = values[0];
+    tmp_db.name = values[1];
+    tmp_db.mem_level_number = values[2];
+    tmp_db.level_cell_number = values[3];
+    tmp_db.del_flag = values[4];
+
+    for (int index = 0; index < offset; index++) {
+        fread(&swap_db, sizeof(modules_tb), 1, file);
+        if (tmp_db.id == swap_db.id) {
+            fseek(file, -sizeof(modules_tb), SEEK_SET);
+            fwrite(*tmp_db, sizeof(modules_tb), 1, file);
+            break;
+        }
+    }
+
+    fflush(file);
+    fclose(file);
+}
+
+void delete_from_database_modules(query->columns) {
+    printf("[DEBUG] delete_from_database_modules\n");
+
+    FILE* file, file_temp;
+    file = fopen("master_modules.db", "r+b");
+    file_temp = fopen("temp.db", "wb");
+
+    int offset = getsize_file(file);
+    modules_tb tmp_db, swap_db;
+    int index;
+
+    int offset = index * sizeof(modules_tb);
+    fseek(file, offset, SEEK_SET);
+
+    tmp_db.id = values[0];
+    tmp_db.name = values[1];
+    tmp_db.mem_level_number = values[2];
+    tmp_db.level_cell_number = values[3];
+    tmp_db.del_flag = values[4];
+
+    for (int index = 0; index < offset; index++) {
+        fread(&swap_db, sizeof(modules_tb), 1, file);
+        if (tmp_db.id == swap_db.id || tmp_db.name == swap_db.name || tmp_db.mem_level_number == swap_db.mem_level_number || tmp_db.level_cell_number == swap_db.level_cell_number || tmp_db.del_flag == swap_db.del_flag) {
+            continue;
+        } else {
+            fwrite(*swap_db, sizeof(modules_tb), 1, file_temp);
+        }
+    }
+
+    fflush(file);
+    fclose(file_temp);
+    remove("master_modules.db");
+    rename("temp.db", "master_modules.db");
+    fclose(file);
+}
+
+void rewriting_file_in_insert(modules_tb tmp_db, modules_tb swap_db, FILE* file) {
+    printf("[DEBUG] rewriting_file_in_insert\n");
+    fread(&tmp_db, sizeof(modules_tb), 1, file);
+    fseek(file, -sizeof(modules_tb), SEEK_SET);
+    fwrite(swap_db, sizeof(modules_tb), 1, file);
 }
 
 int getsize_file(FILE **file) {

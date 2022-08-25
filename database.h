@@ -1,10 +1,12 @@
-#define ENTITY
+#ifndef DATABASE_SRC_H_
+#define DATABASE_SRC_H_
 
-#define MODULES_TB_ID 1
-#define LEVELS_TB_ID 2
+#define MODULES_TB_ID   1
+#define LEVELS_TB_ID    2
 #define STATUSSES_TB_ID 3
 
-#define COLUMN_SIZE 10
+#define TABLE_COLUMNS_MAX_SIZE 6
+
 
 typedef struct Modules {
     int id;
@@ -41,44 +43,74 @@ typedef struct Entity {
 
 ////////////////// QUERIES /////////////////////
 
-#define MAX_COLUMN_SIZE 128
 
 #define SELECT_QUERY_ID 1
 #define INSERT_QUERY_ID 2
 #define UPDATE_QUERY_ID 3
 #define DELETE_QUERY_ID 4
 
+
+// select id, name from modules (group by id)
 typedef struct SelectQuery {
-    // char *columns[128];
-    int columns[10]; // какие столбцы выводить 
-    int table_id; // какую таблицу открывать
+    int columns[TABLE_COLUMNS_MAX_SIZE];
+    int table_id;
 } select_q;
 
-// typedef struct InsertQuery {
-//     char *columns[128];
-//     int table_id;
-// } select_q;
+// insert into modules (id, name) (12, "new module")
+typedef struct InsertQuery {
+    int table_id;
+    int columns[TABLE_COLUMNS_MAX_SIZE];
+    token_t **values;
+} insert_q;
+
+// update modules set id = 12, name = "updated module"
+typedef struct UpdateQuery {
+    int table_id;
+    int columns[TABLE_COLUMNS_MAX_SIZE];
+    token_t **values;
+} update_q;
+
+// delete from modules where id = 2
+typedef struct DeleteQuery {
+    int table_id;
+    int columns[TABLE_COLUMNS_MAX_SIZE];
+    token_t **values;
+} delete_q;
+
 
 typedef struct Query {
     union {
         select_q *select_query;
-        // else
+        insert_q *insert_query;
+        update_q *update_query;
+        delete_q *delete_query;
     };
     int query_id;
 } query_t;
 
+query_t *new_query(int query_id);
 
-// select id from table
+void free_query(query_t *query);
 
-void select(select_q *query);
+select_q *new_select_query(int columns[TABLE_COLUMNS_MAX_SIZE], int table_id);
 
-void output_entity(tb_entity *entity);
+insert_q *new_insert_query(int table_id, int columns[TABLE_COLUMNS_MAX_SIZE], token_t **values);
 
-int delete(FILE *db, int id);
+update_q *new_update_query(int table_id, int columns[TABLE_COLUMNS_MAX_SIZE], token_t **values);
 
-int insert(FILE *db, tb_entity *entity);
+delete_q *new_delete_query(int table_id, int columns[TABLE_COLUMNS_MAX_SIZE], token_t **values);
 
-int update(FILE *db, int id, tb_entity *entity);
 
 //////////////////////////////////////////////////////
 
+
+void select(select_q *query);
+
+int insert(insert_q *query);
+
+int update(update_q *query);
+
+int delete(delete_q *query);
+
+
+#endif  // DATABASE_SRC_H_
