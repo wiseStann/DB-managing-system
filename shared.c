@@ -67,13 +67,13 @@ void select(select_q *query) {
 }
 
 int delete(FILE *db, int id) {
-    
+    return 0;
 }
 
 int insert(FILE *db, tb_entity *entity) {
-
+    return 0;
 }
 
 int update(FILE *db, int id, tb_entity *entity) {
-
+    return 0;
 }

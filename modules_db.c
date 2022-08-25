@@ -1,5 +1,5 @@
 #include "database.h"
-
+#include "io.h"
 
 void start_managing();
 void show_menu();
@@ -44,7 +44,15 @@ select column1, column2, ... from <tablename>
 
 */
 int get_menu_item() {
-
+    int item;
+    int res = scanf("%d", &item);
+    int spaces_only = skip_spaces();
+    if (res != 1 || !spaces_only)
+        item = -1;
+    if (item < 0 || item > 9) {
+        item = -1
+    }
+    return item;
 }
 
 void handle_item(int number) {
@@ -53,7 +61,15 @@ void handle_item(int number) {
         handle_query();
     }
     switch (number) {
-        case 5:
+        case 5 : //get_active_mods();
+            break;
+        case 6 : //delete_mods();
+            break;
+        case 7 : //lockdown();
+            break;
+        case 8 : //escalate();
+            break;
+        case 9 : //set_mem_level();
             break;
         default:
             code = 0;
@@ -70,23 +86,23 @@ void handle_query() {
         if (query_tokens) {
             query_t *query = parse_query(query_tokens, tokens_size);
             if (query) {
-                switch (query->query_id) {
-                    case 1:
-                        select(query->select_query);
-                        break;
-                    case 2:
-                        insert(query->insert_query);
-                        break;
-                    case 3:
-                        update(query->update_query);
-                        break;
-                    case 4:
-                        delete(query->delete_query);
-                        break;
-                    default:
-                        fprintf(stderr, "Invalid type of query [handle_query]\n");
-                        break;
-                }
+                // switch (query->query_id) {
+                //     case 1:
+                //         select(query->select_query);
+                //         break;
+                //     case 2:
+                //         insert(query->insert_query);
+                //         break;
+                //     case 3:
+                //         update(query->update_query);
+                //         break;
+                //     case 4:
+                //         delete(query->delete_query);
+                //         break;
+                //     default:
+                //         fprintf(stderr, "Invalid type of query [handle_query]\n");
+                //         break;
+                // }
                 for (int i = 0; i < tokens_size; i++)
                     free(query_tokens[i]);
                 free(query_tokens);

@@ -189,7 +189,7 @@ query_t *parse_select_query(parser_t *parser, int query_id) {
     } else {
 
     }
-
+    printf("Debug finish [parse_select_query]")
     validate_query_columns(parser, str_columns, bin_columns, table_id, columns_idx);
     query_t *query = new_query(query_id);
     query->select_query = new_select_query(bin_columns, table_id);
@@ -199,17 +199,17 @@ query_t *parse_select_query(parser_t *parser, int query_id) {
 // insert into modules (id, name) (12, "new module")
 insert_q *parse_insert_query(parser_t *parser, int query_id) {
     printf("Debug [parse_insert_query]\n");
-
+    return NULL;
 }
 
 // update modules set id = 12, name = "updated module"
 update_q *parse_update_query(parser_t *parser, int query_id) {
     printf("Debug [parse_update_query]\n");
-
+    return NULL;
 }
 
 // delete from modules where id = 2
 delete_q *parse_delete_query(parser_t *parser, int query_id) {
     printf("Debug [parse_delete_query]\n");
-
+    return NULL;
 }
