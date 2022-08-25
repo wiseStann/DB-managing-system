@@ -47,8 +47,9 @@ typedef struct Entity {
 #define DELETE_QUERY_ID 4
 
 typedef struct SelectQuery {
-    char *columns[128];
-    int table_id;
+    // char *columns[128];
+    int columns[10]; // какие столбцы выводить 
+    int table_id; // какую таблицу открывать
 } select_q;
 
 // typedef struct InsertQuery {
@@ -67,7 +68,7 @@ typedef struct Query {
 
 // select id from table
 
-tb_entity *select(select_q *query);
+void select(select_q *query);
 
 void output_entity(tb_entity *entity);
 
