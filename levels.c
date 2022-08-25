@@ -62,7 +62,6 @@ void insert_from_database_levels(int columns[TABLE_COLUMNS_MAX_SIZE], token_t** 
     file = fopen("master_levels.db", "r+b");
     int offset = getsize_file1(file);
     levels_tb tmp_db, swap_db;
-    int index;
 
     fseek(file, offset, SEEK_SET);
 
@@ -89,7 +88,6 @@ void update_from_database_levels(int columns[TABLE_COLUMNS_MAX_SIZE], token_t** 
     file = fopen("master_levels.db", "r+b");
     int offset = getsize_file1(file);
     levels_tb tmp_db, swap_db;
-    int index;
 
     fseek(file, offset, SEEK_SET);
 
@@ -118,7 +116,6 @@ void delete_from_database_levels(int columns[TABLE_COLUMNS_MAX_SIZE], token_t** 
 
     int offset = getsize_file1(file);
     levels_tb tmp_db, swap_db;
-    int index;
 
     fseek(file, offset, SEEK_SET);
 

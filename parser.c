@@ -160,8 +160,8 @@ query_t *parse_select_query(parser_t *parser, int query_id) {
   while ((next = curr_token(parser)) != NULL &&
          next->kind != TOKEN_FROM_KEYWORD && parser->state) {
     if (next->kind != TOKEN_WORD) {
-      _THROW_ERROR("Expected word token as the name of a column, got '%s'\n",
-                   next->str_token);
+      //_THROW_ERROR("Expected word token as the name of a column, got '%77s'\n",
+                   //next->str_token);
       parser->state = 0;
     } else {
       str_columns[columns_idx] = next->str_token;
@@ -327,7 +327,6 @@ query_t *parse_delete_query(parser_t *parser, int query_id) {
   int table_id;
   token_t **values = (token_t **)malloc(sizeof(struct Token *));
   int bin_columns[TABLE_COLUMNS_MAX_SIZE], size = 0;
-  int values_idx = 0;
   if (!expect_token(parser, TOKEN_FROM_KEYWORD)) {
     _THROW_ERROR("Expected 'from' keyword after 'delete' keyword\n");
     parser->state = 0;

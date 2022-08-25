@@ -67,8 +67,7 @@ void insert_from_database_modules(int columns[TABLE_COLUMNS_MAX_SIZE], token_t**
     FILE* file;
     file = fopen("master_modules.db", "r+b");
     int offset = getsize_file3(file);
-    modules_tb tmp_db, swap_db;
-    int index;
+    modules_tb tmp_db, swap_db = {};
 
     fseek(file, offset, SEEK_SET);
 
@@ -94,7 +93,6 @@ void update_from_database_modules(int columns[TABLE_COLUMNS_MAX_SIZE], token_t**
     file = fopen("master_modules.db", "r+b");
     int offset = getsize_file3(file);
     modules_tb tmp_db, swap_db;
-    int index;
 
     fseek(file, offset, SEEK_SET);
 
@@ -123,7 +121,6 @@ void delete_from_database_modules(int columns[TABLE_COLUMNS_MAX_SIZE], token_t**
 
     int offset = getsize_file3(file);
     modules_tb tmp_db, swap_db;
-    int index;
 
     fseek(file, offset, SEEK_SET);
 

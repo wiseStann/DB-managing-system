@@ -67,7 +67,6 @@ void insert_from_database_statusses(int columns[TABLE_COLUMNS_MAX_SIZE], token_t
     file = fopen("master_status_events.db", "r+b");
     int offset = getsize_file2(file);
     statusses_tb tmp_db, swap_db;
-    int index;
 
     fseek(file, offset, SEEK_SET);
 
@@ -93,7 +92,6 @@ void update_from_database_statusses(int columns[TABLE_COLUMNS_MAX_SIZE], token_t
     file = fopen("master_status_events.db", "r+b");
     int offset = getsize_file2(file);
     statusses_tb tmp_db, swap_db;
-    int index;
 
     fseek(file, offset, SEEK_SET);
 
@@ -122,7 +120,6 @@ void delete_from_database_statusses(int columns[TABLE_COLUMNS_MAX_SIZE], token_t
 
     int offset = getsize_file2(file);
     statusses_tb tmp_db, swap_db;
-    int index;
 
     fseek(file, offset, SEEK_SET);
 
