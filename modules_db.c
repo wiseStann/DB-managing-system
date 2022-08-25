@@ -31,6 +31,7 @@ void start_managing() {
 
 select column1, column2, ... from <tablename>
 
+0. Exit
 1. SELECT
 2. INSERT
 3. UPDATE
@@ -62,14 +63,33 @@ void handle_item(int number) {
 
 void handle_query() {
     printf("Type in select query, please: ");
-    char *query = get_line_from_stdin();
-    token **query_tokens = tokenize(query);
-    query_t *query = parse_query(query_tokens);
-    switch (query->query_id) {
-        case 1: {
-            tb_entity *entity = select(query->select_query);
-            output_entity(entity);
+    int query_size, tokens_size;
+    char *query = get_line_from_stdin(&query_size);
+    if (query) {
+        token **query_tokens = tokenize_query(query, query_size, &tokens_size);
+        if (query_tokens) {
+            query_t *query = parse_query(query_tokens, tokens_size);
+            switch (query->query_id) {
+                case 1:
+                    select(query->select_query);
+                    break;
+                case 2:
+                    insert(query->insert_query);
+                    break;
+                case 3:
+                    update(query->update_query);
+                    break;
+                case 4:
+                    delete(query->delete_query);
+                    break;
+                default:
+                    fprintf(stderr, "Invalid type of query [handle_query]\n");
+                    break;
+            }
+            for (int i = 0; i < tokens_size; i++)
+                free(query_tokens[i]);
+            free(query_tokens);
         }
+        free(query);
     }
-    free(query);
 }

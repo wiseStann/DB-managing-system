@@ -8,7 +8,7 @@
 
 int skip_spaces();
 
-char *get_line_from_stdin();
+char *get_line_from_stdin(int *size);
 
 
 #endif  // IO_H_
