@@ -1,6 +1,14 @@
 #include "database.h"
 #include <stdio.h>
 
+int getsize_file(FILE *file) {
+  int size = 0;
+  fseek(file, 0, SEEK_END);
+  size = ftell(file) / sizeof(modules_tb);
+  rewind(file);
+  return size;
+}
+
 void select_from_database_modules(int columns[TABLE_COLUMNS_MAX_SIZE]) {
     printf("[DEBUG] read_from_database_modules\n");
 
@@ -140,10 +148,3 @@ void rewriting_file_in_insert(modules_tb tmp_db, modules_tb swap_db, FILE* file)
     fwrite(swap_db, sizeof(modules_tb), 1, file);
 }
 
-int getsize_file(FILE **file) {
-  int size = 0;
-  fseek(*file, 0, SEEK_END);
-  size = ftell(*file) / sizeof(modules_tb);
-  rewind(*file);
-  return size;
-}

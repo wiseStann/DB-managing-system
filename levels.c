@@ -1,6 +1,15 @@
 #include "database.h"
 #include <stdio.h>
 
+
+int getsize_file(FILE *file) {
+  int size = 0;
+  fseek(file, 0, SEEK_END);
+  size = ftell(file) / sizeof(levels_tb);
+  rewind(file);
+  return size;
+}
+
 void select_from_database_levels(int columns[COLUMN_SIZE]) {
     printf("[DEBUG] read_from_database_levels\n");
 
@@ -120,12 +129,4 @@ void rewriting_file_in_insert(levels_tb* tmp_db, levels_tb* swap_db, FILE* file)
     fread(tmp_db, sizeof(levels_tb), 1, file);
     fseek(file, -sizeof(levels_tb), SEEK_SET);
     fwrite(*swap_db, sizeof(levels_tb), 1, file);
-}
-
-int getsize_file(FILE **file) {
-  int size = 0;
-  fseek(*file, 0, SEEK_END);
-  size = ftell(*file) / sizeof(levels_tb);
-  rewind(*file);
-  return size;
 }

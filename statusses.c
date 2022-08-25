@@ -1,6 +1,15 @@
 #include "database.h"
 #include <stdio.h>
 
+
+int getsize_file(FILE *file) {
+  int size = 0;
+  fseek(file, 0, SEEK_END);
+  size = ftell(file) / sizeof(statusses_tb);
+  rewind(file);
+  return size;
+}
+
 void select_from_database_statusses(int columns[COLUMN_SIZE]) {
     printf("[DEBUG] read_from_database_statusses\n");
 
@@ -32,7 +41,6 @@ void select_from_database_statusses(int columns[COLUMN_SIZE]) {
     }
 
     fclose(file);
-    return 0;
 }
 
 void insert_from_database_statusses(int columns[TABLE_COLUMNS_MAX_SIZE], token_t** values) {
@@ -138,12 +146,4 @@ void rewriting_file_in_insert(statusses_tb* tmp_db, statusses_tb* swap_db, FILE*
     fread(tmp_db, sizeof(statusses_tb), 1, file);
     fseek(file, -sizeof(statusses_tb), SEEK_SET);
     fwrite(*swap_db, sizeof(statusses_tb), 1, file);
-}
-
-int getsize_file(FILE **file) {
-  int size = 0;
-  fseek(*file, 0, SEEK_END);
-  size = ftell(*file) / sizeof(statusses_tb);
-  rewind(*file);
-  return size;
 }
